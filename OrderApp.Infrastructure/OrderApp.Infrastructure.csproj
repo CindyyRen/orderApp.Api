@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	<TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>CA1812;CA1852</NoWarn>
+	<NoWarn>$(NoWarn);VSTHRD003</NoWarn>
+	  <NoWarn>$(NoWarn);CA1062</NoWarn>
+  </PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\OrderApp.Domain\OrderApp.Domain.csproj" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+	</ItemGroup>
+
+</Project>

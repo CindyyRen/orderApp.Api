@@ -1,0 +1,56 @@
+# ================================
+# Root
+# ================================
+root = true
+
+# ================================
+# C# files
+# ================================
+[*.cs]
+
+############################
+# Threading / async 噪音
+############################
+
+# ASP.NET Core 中不需要 ConfigureAwait(false)
+dotnet_diagnostic.VSTHRD003.severity = none
+
+# 同类规则（类库才有意义）
+dotnet_diagnostic.CA2007.severity = none
+
+############################
+# Logging 性能噪音
+############################
+
+# LoggerMessage.Define 建议（Web API 中通常过度）
+dotnet_diagnostic.CA1848.severity = none
+
+############################
+# Nullable & modern C#（保留）
+############################
+
+# Nullable 相关是有价值的
+dotnet_diagnostic.CS8618.severity = warning
+dotnet_diagnostic.CS8602.severity = warning
+dotnet_diagnostic.CS8604.severity = warning
+
+############################
+# 风格类（不影响逻辑）
+############################
+
+# 表达式结果未使用（Web API 常见，可保留 info）
+dotnet_diagnostic.IDE0058.severity = silent
+
+# using 排序 / 简化（不重要）
+dotnet_diagnostic.IDE0060.severity = silent
+dotnet_diagnostic.IDE0005.severity = silent
+
+############################
+# Async 编程真正有用的
+############################
+
+# async 方法名不规范（有价值）
+dotnet_diagnostic.CA1710.severity = warning
+
+# async void（除了事件）要警告
+dotnet_diagnostic.VSTHRD100.severity = warning

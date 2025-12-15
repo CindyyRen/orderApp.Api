@@ -1,0 +1,53 @@
+﻿@orderApp.Api_HostAddress = http://localhost:5177
+@menuId = 727a6b31-8a02-4c16-2087-08de3bc51fef
+
+GET {{orderApp.Api_HostAddress}}/api/Menu/
+Accept: application/json
+
+###
+
+########################################
+# 2️⃣ 根据 Id 获取菜单（替换为真实 Guid）
+########################################
+GET {{orderApp.Api_HostAddress}}/api/Menu/{{menuId}}
+Accept: application/json
+
+###
+
+########################################
+# 3️⃣ 创建菜单
+########################################
+POST {{orderApp.Api_HostAddress}}/api/Menu
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Gongbao Chicken",
+  "price": 1200,
+  "category": 1,
+  "description": "Classic fried rice"
+}
+
+###
+
+########################################
+# 4️⃣ 更新菜单
+########################################
+PUT {{orderApp.Api_HostAddress}}/api/Menu/{{menuId}}
+Content-Type: application/json
+
+{
+  "name": "Gongbao Chicken",
+  "price": 1200,
+  "category": 1,
+  "description": "Upgraded fried rice"
+}
+
+###
+
+########################################
+# 5️⃣ 删除菜单
+########################################
+DELETE {{orderApp.Api_HostAddress}}/api/Menu/{{menuId}}
+
+###

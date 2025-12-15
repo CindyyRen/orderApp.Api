@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <Project Path="orderApp.Api/OrderApp.Api.csproj" />
+    <Project Path="OrderApp.Application/OrderApp.Application.csproj" Id="e5d9a225-f6ed-486b-b469-2921bc29d527" />
+    <Project Path="OrderApp.Domain/OrderApp.Domain.csproj" Id="f662d1e4-39d7-4be4-b680-8b0252758d1e" />
+    <Project Path="OrderApp.Infrastructure/OrderApp.Infrastructure.csproj" Id="0c4ed2b6-c98b-4035-a45c-3e553bb72900" />
+  </Folder>
+</Solution>
