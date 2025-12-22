@@ -1,10 +1,11 @@
 ﻿@orderApp.Api_HostAddress = http://localhost:5177
-@menuId = 727a6b31-8a02-4c16-2087-08de3bc51fef
+@menuId = 4f23ba24-393e-4563-04bc-08de3c9dfadf
+
+
+###
 
 GET {{orderApp.Api_HostAddress}}/api/Menu/
 Accept: application/json
-
-###
 
 ########################################
 # 2️⃣ 根据 Id 获取菜单（替换为真实 Guid）
@@ -23,7 +24,7 @@ Accept: application/json
 
 {
   "name": "Gongbao Chicken",
-  "price": 1200,
+  "price": { "cents": 5000, "currency": "AUD" },
   "category": 1,
   "description": "Classic fried rice"
 }
@@ -51,3 +52,46 @@ Content-Type: application/json
 DELETE {{orderApp.Api_HostAddress}}/api/Menu/{{menuId}}
 
 ###
+### 获取所有订单
+GET {{orderApp.Api_HostAddress}}/api/orders
+Content-Type: application/json
+
+### 获取单个订单
+GET {{orderApp.Api_HostAddress}}/api/orders/5163d010-7af1-498e-cd31-08de414937f9
+Content-Type: application/json
+### 创建订单
+POST {{orderApp.Api_HostAddress}}/api/orders
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "menuItemId": "bad5b8ee-57da-4fad-2fc5-08de41492604",
+      "quantity": 4
+    },
+    {
+      "menuItemId": "d59baacc-6ad9-4203-2fc6-08de41492604",
+      "quantity": 2
+    }
+  ]
+}
+
+### 更新订单
+PUT {{orderApp.Api_HostAddress}}/api/orders/65d1db43-c1a5-483d-cd30-08de414937f9
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "menuItemId": "bad5b8ee-57da-4fad-2fc5-08de41492604",
+      "quantity": 15
+    },
+    {
+      "menuItemId": "d59baacc-6ad9-4203-2fc6-08de41492604",
+      "quantity": 14
+    }
+  ]
+}
+
+###删除订单
+DELETE {{orderApp.Api_HostAddress}}/api/orders/5163d010-7af1-498e-cd31-08de414937f9

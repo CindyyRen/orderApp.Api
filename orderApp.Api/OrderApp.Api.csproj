@@ -4,12 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>$(NoWarn);CA1848</NoWarn>
-	  <NoWarn>$(NoWarn);CA1515</NoWarn>
-	  <!-- 禁用日志性能警告 -->
+	<EnableNETAnalyzers>false</EnableNETAnalyzers>
   </PropertyGroup>
 
-  <ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 

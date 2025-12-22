@@ -35,7 +35,7 @@ public sealed class MenuController(ApplicationDbContext dbContext) : ControllerB
     public async Task<ActionResult<MenuItem>> Create(MenuItemDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
-        var menuItem = new MenuItem(dto.Name, dto.Price,dto.Category,  dto.Description);
+        var menuItem = MenuItem.Create(dto.Name, dto.Price,dto.Category,  dto.Description);
         await dbContext.MenuItems.AddAsync(menuItem);
         await dbContext.SaveChangesAsync();
 

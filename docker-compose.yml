@@ -1,9 +1,8 @@
 version: '3.8'
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: OrderAppDb
+    container_name: orderapp-sqlserver
     environment:
       SA_PASSWORD: "MyStr!Passw0rd"
       ACCEPT_EULA: "Y"
@@ -13,9 +12,18 @@ services:
       - sqlserver-data:/var/opt/mssql
     networks:
       - orderapp-network
-
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: orderapp-admin
+    ports:
+      - "8978:8978"
+    depends_on:
+      - sqlserver
+    networks:
+      - orderapp-network
+    environment:
+      CB_SERVER_HOST: "0.0.0.0"
 volumes:
   sqlserver-data:
-
 networks:
   orderapp-network:

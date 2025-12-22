@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderApp.Domain.Entities
+namespace OrderApp.Domain.Entities;
+
+public class BaseEntity
 {
-    internal class Class1
-    {
-    }
+    public Guid Id { get; private set; }
 }

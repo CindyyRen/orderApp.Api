@@ -1,16 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrderApp.Domain.Entities;
-using System.Reflection.Emit;
+using OrderApp.Domain.ValueObjects;
 
 namespace OrderApp.Infrastructure.Data.Configurations;
 
-// ✅ 改为 public
 public sealed class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
 {
     public void Configure(EntityTypeBuilder<MenuItem> builder)
     {
-        ArgumentNullException.ThrowIfNull(builder);
         builder.HasKey(t => t.Id);
 
         builder.Property(t => t.Name)
@@ -20,8 +18,21 @@ public sealed class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         builder.Property(t => t.Description)
                .HasMaxLength(1000);
 
-        // ⚠️ 如果 Price 是 Money 类型，需要特殊处理（见下文）
-        builder.Property(t => t.Price)
-               .HasColumnType("decimal(18,2)");
+        // ⚠️ 配置 Owned Entity Money
+        /*            builder.OwnsOne(m => m.Price, priceBuilder =>
+                    {
+                        priceBuilder.Property(p => p.Cents).HasColumnName("PriceCents");
+                        priceBuilder.Property(p => p.Currency).HasColumnName("PriceCurrency");
+                    });*/
+        // ⚡ 将 Money 类型映射为 decimal 存数据库
+        // ✅ 使用 HasConversion
+        builder.Property(m => m.Price)
+               .HasConversion(
+                   m => m.ToDecimal(),                    // Money → decimal
+                   v => Money.FromDollars(v, "AUD")      // decimal → Money
+               )
+               .HasColumnType("decimal(18,2)")
+               .IsRequired();
+
     }
 }

@@ -12,7 +12,7 @@ public sealed class Money : ValueObject, IComparable<Money>, IEquatable<Money>
     public static readonly Money Zero = new(0, "AUD");
 
     // 2. 构造函数
-    private Money(long cents, string currency)
+    public Money(long cents, string currency)
     {
         if (cents < 0)
             throw new ArgumentOutOfRangeException(nameof(cents), "Money cannot be negative");
@@ -67,13 +67,16 @@ public sealed class Money : ValueObject, IComparable<Money>, IEquatable<Money>
     }
 
     // 6. 运算符重载
+
     public static Money operator +(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
-        return left.Add(right);
-    }
+        if (left.Currency != right.Currency)
+            throw new InvalidOperationException("Cannot add different currencies");
 
+        return new Money(left.Cents + right.Cents, left.Currency);
+    }
     public static Money operator -(Money left, Money right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -81,11 +84,15 @@ public sealed class Money : ValueObject, IComparable<Money>, IEquatable<Money>
         return left.Subtract(right);
     }
 
-    public static Money operator *(Money money, int factor)
+    public static Money operator *(Money money, int quantity)
     {
         ArgumentNullException.ThrowIfNull(money);
-        return money.Multiply(factor);
+        if (quantity < 0)
+            throw new ArgumentException("Quantity cannot be negative", nameof(quantity));
+
+        return new Money(money.Cents * quantity, money.Currency);
     }
+
 
     public static Money operator *(int factor, Money money)
     {

@@ -1,13 +1,16 @@
-﻿namespace OrderApp.Domain.Entities;
+﻿using OrderApp.Domain.Common;
+using OrderApp.Domain.ValueObjects;
+
+namespace OrderApp.Domain.Entities;
 //核心原则：如果一个方法名包含业务术语（discount, tax, tip, service charge），就不应该放在 Money 类中。
-public class MenuItem
+public class MenuItem:BaseEntity
 {
     //没有初始化 → 默认值是 0（因为 int 默认就是 0）。
-    public Guid Id { get; private set; }
+    //public Guid Id { get; private set; }
 
     //public int Id { get; private set; } // Aggregate Root
     public string Name { get; private set; } = null!;
-    public decimal Price { get; private set; }
+    public Money Price { get; private set; } = null!;
     public bool IsAvailable { get; private set; } = true;
     public string? Description { get; private set; }
     public MenuCategory Category { get; private set; }
@@ -18,27 +21,43 @@ public class MenuItem
     //没写任何构造函数 → C# 默认生成 public 无参构造函数 → EF Core 可以用
     //写了带参数构造函数 → 默认无参构造函数消失 → EF Core 会报错
     //解决方法 → 手动加一个无参构造函数，private 就行
-    private MenuItem() { } // For EF Core
+    private MenuItem() { } // EF Core only
 
-    // 构造函数，保证初始数据合法
-    public MenuItem(string name, decimal price, MenuCategory category, string? description = null)
+    public MenuItem(
+        string name,
+        Money price,
+        MenuCategory category,
+        string? description)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty");
-        if (price < 0) throw new ArgumentException("Price cannot be negative");
-
         Name = name;
         Price = price;
         Category = category;
         Description = description;
         IsAvailable = true;
+        CreatedAt = DateTime.UtcNow;
     }
 
-    // 行为方法
-    public void UpdatePrice(decimal newPrice)
+
+    // ✅ 唯一对外创建入口
+    public static MenuItem Create(
+        string name,
+        Money price,
+        MenuCategory category,
+        string? description = null)
     {
-        if (newPrice < 0) throw new ArgumentException("Price cannot be negative");
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name cannot be empty", nameof(name));
+
+        ArgumentNullException.ThrowIfNull(price);
+
+        return new MenuItem(name, price, category, description);
+    }
+    // 行为方法
+    public void UpdatePrice(Money newPrice)
+    {
+        ArgumentNullException.ThrowIfNull(newPrice);
         Price = newPrice;
-        UpdatedAt = DateTime.UtcNow; // ✅ 记录更新时间
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateName(string newName)
