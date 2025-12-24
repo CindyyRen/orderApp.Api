@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderApp.Api.Extensions;
+using OrderApp.Api.Middleware;
 using OrderApp.Infrastructure;
 using OrderApp.Infrastructure.Data;
 using System.Text.Json.Serialization;
@@ -22,14 +23,18 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 }); ;
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddFluentValidators(); // 扫描 Application 层 Validator 并注册
+
 
 var app = builder.Build();
+// 全局异常处理放在最前面
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await DbSeeder.SeedMenuItemsAsync(dbContext);
 }
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

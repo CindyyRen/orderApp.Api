@@ -163,7 +163,4 @@ public async Task<ActionResult<Guid>> Create([FromBody] InputOrderDto dto)
 
         return NoContent();
     }
-
-
-
 }
