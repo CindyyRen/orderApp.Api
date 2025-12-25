@@ -66,11 +66,11 @@ Content-Type: application/json
 {
   "items": [
     {
-      "menuItemId": "bad5b8ee-57da-4fad-2fc5-08de41492604",
+      "menuItemId": "926fdf1c-c8c2-41e7-7ba6-08de439c86af",
       "quantity": 4
     },
     {
-      "menuItemId": "d59baacc-6ad9-4203-2fc6-08de41492604",
+      "menuItemId": "9266dfea-5743-446d-7ba7-08de439c86af",
       "quantity": 2
     }
   ]

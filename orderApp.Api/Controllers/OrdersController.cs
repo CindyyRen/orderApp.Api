@@ -6,12 +6,15 @@ using OrderApp.Application.DTOs.Order;
 using OrderApp.Domain.Entities;
 using OrderApp.Domain.ValueObjects;
 using OrderApp.Infrastructure.Data;
+using OrderApp.Application.Mappings;
+
 namespace OrderApp.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public sealed class OrdersController(ApplicationDbContext dbContext) : ControllerBase
+public sealed class OrdersController(ApplicationDbContext dbContext, OrderItemDtoToEntityMapper _orderItemsMapper) : ControllerBase
 {
+    // GET /api/orders
     // GET /api/orders
     [HttpGet]
     public async Task<ActionResult<List<OrderDto>>> GetAll()
@@ -20,32 +23,8 @@ public sealed class OrdersController(ApplicationDbContext dbContext) : Controlle
             .Include(o => o.Items)
             .ToListAsync();
 
-        var dtos = orders.Select(order =>
-        {
-            var dto = new OrderDto
-            {
-                Id = order.Id,
-                CustomerId = order.CustomerId,
-                Status = order.Status,
-                CreatedAt = order.CreatedAt,
-                TotalPrice = order.TotalPrice.ToDecimal(), // Money → decimal
-            };
-
-            foreach (var i in order.Items)
-            {
-                dto.Items.Add(new OrderItemDto
-                {
-                    MenuItemId = i.MenuItemId,
-                    Name = i.Name,
-                    Price = i.Price.ToDecimal(), // Money → decimal
-                    Quantity = i.Quantity
-                });
-            }
-
-
-            return dto;
-        }).ToList();
-
+        // 使用你写好的扩展方法映射
+        var dtos = orders.Select(o => o.ToDto()).ToList();
 
         return Ok(dtos);
     }
@@ -55,95 +34,61 @@ public sealed class OrdersController(ApplicationDbContext dbContext) : Controlle
     {
         var order = await dbContext.Orders.Include(O => O.Items).FirstOrDefaultAsync(O => O.Id == id);
         if (order == null) return NotFound();
-
-        var dto = new OrderDto
-        {
-            Id = order.Id,
-            CustomerId = order.CustomerId,
-            Status = order.Status,
-            CreatedAt = order.CreatedAt,
-            TotalPrice = order.TotalPrice.ToDecimal(), // Money → decimal
-        };
-
-        foreach (var i in order.Items)
-        {
-            dto.Items.Add(new OrderItemDto
-            {
-                MenuItemId = i.MenuItemId,
-                Name = i.Name,
-                Price = i.Price.ToDecimal(), // Money → decimal
-                Quantity = i.Quantity,
-            });
-        }
-
-         return Ok(dto);
+        var dto = order.ToDto();
+        return Ok(dto);
     }
 
     // POST /api/orders
     [HttpPost]
 public async Task<ActionResult<Guid>> Create([FromBody] InputOrderDto dto)
 {
-    ArgumentNullException.ThrowIfNull(dto);
+        ArgumentNullException.ThrowIfNull(dto);
+
         if (dto.Items.Count == 0)
             return BadRequest("dto.Items is empty!");
 
+        var order = Order.Create();
 
-    var order = Order.Create();
-    foreach (var item in dto.Items)
-    {
-        var menuItem = await dbContext.MenuItems.FindAsync(item.MenuItemId);
-        if (menuItem == null) return BadRequest($"Menu item {item.MenuItemId} not found");
-        order.AddItem(
-            menuItem.Id,
-            menuItem.Name,
-            menuItem.Price,
-            item.Quantity
-        );
-     }
+        try
+        {
+            var items = await _orderItemsMapper.MapAsync(dto.Items);
+            order.SetItems(items);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
-    dbContext.Orders.Add(order);
-    await dbContext.SaveChangesAsync();
+        dbContext.Orders.Add(order);
+        await dbContext.SaveChangesAsync();
 
-        return Ok(new { orderId = order.Id,  });
+        return Ok(new { orderId = order.Id });
+
     }
     // PUT /api/orders/{id}
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateOrder(Guid id, [FromBody] InputOrderDto updateDto)
     {
         ArgumentNullException.ThrowIfNull(updateDto);
+
         var order = await dbContext.Orders
             .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == id);
 
-        if (order == null) return NotFound();
-        var menuItemIds = updateDto.Items
-            .Select(i => i.MenuItemId)
-            .Distinct()
-            .ToList();
+        if (order == null)
+            return NotFound();
 
-        var menuItems = await dbContext.MenuItems
-            .Where(m => menuItemIds.Contains(m.Id))
-            .ToListAsync();
-        var menuItemDict = menuItems.ToDictionary(m => m.Id);
-        var domainItems = updateDto.Items.Select(dto =>
+        try
         {
-            // 1️⃣ 用 MenuItemId 去字典里查
-            if (!menuItemDict.TryGetValue(dto.MenuItemId, out var menuItem))
-                throw new InvalidOperationException($"MenuItem {dto.MenuItemId} 不存在");
-
-            // 2️⃣ 组装 Domain 需要的数据
-            return (
-                menuItem.Id,                          // 来自数据库
-                menuItem.Name,
-                menuItem.Price,// 来自数据库
-                dto.Quantity                          // 来自前端
-            );
-        }).ToList();
-
-        order.UpdateItems(domainItems);
+            var items = await _orderItemsMapper.MapAsync(updateDto.Items);
+            order.SetItems(items);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         await dbContext.SaveChangesAsync();
-
         return NoContent();
     }
 

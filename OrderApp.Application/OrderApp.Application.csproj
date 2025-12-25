@@ -12,6 +12,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OrderApp.Domain\OrderApp.Domain.csproj" />
+    <ProjectReference Include="..\OrderApp.Infrastructure\OrderApp.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Orders\Commands\" />
+    <Folder Include="Orders\Queries\" />
   </ItemGroup>
 
 </Project>

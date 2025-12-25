@@ -33,6 +33,8 @@ dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CS8618.severity = warning
 dotnet_diagnostic.CS8602.severity = warning
 dotnet_diagnostic.CS8604.severity = warning
+dotnet_diagnostic.CA1002.severity = none
+
 
 ############################
 # 风格类（不影响逻辑）

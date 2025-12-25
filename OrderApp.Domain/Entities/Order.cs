@@ -17,15 +17,14 @@ public sealed class Order:BaseEntity
 
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
+    public List<OrderItem> Items { get; private set; } = new();
 
-    private readonly List<OrderItem> _items = new();
-    public IReadOnlyCollection<OrderItem> Items => _items;
 
     // ✅ 修复：返回 Money 类型
     public Money TotalPrice =>
-    _items.Count == 0
+    Items.Count == 0
         ? Money.Zero
-        : _items
+        : Items
             .Select(i => i.Price * i.Quantity)   // 需要 Money * int
             .Aggregate((sum, price) => sum + price);  // Money + Money
 
@@ -57,48 +56,22 @@ public sealed class Order:BaseEntity
     {
         return Status == OrderStatus.Pending || Status == OrderStatus.Ready;
     }
-    // ✅ 添加订单项
-    public void AddItem(Guid menuItemId, string name, Money price, int quantity)
+
+    // ✅ 唯一的 items 操作方法 - 适用于 Create 和 Update
+    public void SetItems(IEnumerable<(Guid menuItemId, string name, Money price, int quantity)> items)
     {
-        // 1️⃣ 确保订单状态允许修改
+        ArgumentNullException.ThrowIfNull(items);
         EnsureCanModifyItems();
 
-        // 2️⃣ 处理重复菜品：累加数量或新增
-        var existingItem = _items.FirstOrDefault(x => x.MenuItemId == menuItemId);
-        if (existingItem != null)
+        Items.Clear();  // 对于 Create 来说，清空空列表 = 无操作
+
+        foreach (var (menuItemId, name, price, quantity) in items)
         {
-            existingItem.UpdateQuantity(existingItem.Quantity + quantity);
-        }
-        else
-        {
-            _items.Add(new OrderItem(this, menuItemId, name, price, quantity));
+            Items.Add(new OrderItem(this, menuItemId, name, price, quantity));
         }
 
-        // 3️⃣ 更新时间
         Touch();
     }
-    // ✅ 更新订单
-    public void UpdateItems(IReadOnlyCollection<(Guid menuItemId, string name, Money price, int quantity)> newItems)
-    {
-        // ✅ 简洁 null 检查
-    ArgumentNullException.ThrowIfNull(newItems);
-
-        // 1️⃣ 确保可以修改
-        EnsureCanModifyItems();
-
-        // 2️⃣ 清空旧数据
-        _items.Clear();
-
-        // 3️⃣ 添加新数据（直接add，不要用AddItem，因为AddItem有累加逻辑）
-        foreach (var (menuItemId, name, price, quantity) in newItems)
-        {
-            _items.Add(new OrderItem(this, menuItemId, name, price, quantity));
-        }
-
-        // 4️⃣ 更新时间
-        Touch();
-    }
-
     public void ChangeStatus(OrderStatus status)
     {
         // 这里以后可以加状态机校验
