@@ -1,9 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OrderApp.Api.Extensions;
 using OrderApp.Api.Middleware;
 using OrderApp.Application.Mappings;
+using OrderApp.Application.Orders.Commands;
+using OrderApp.Domain.Entities;
 using OrderApp.Infrastructure;
 using OrderApp.Infrastructure.Data;
+using OrderApp.Infrastructure.Seeders;
 using System.Text.Json.Serialization;
 
 
@@ -25,34 +29,43 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddFluentValidators(); // 扫描 Application 层 Validator 并注册
+builder.Services.AddMediatRServices();
+builder.Services.AddScoped<DatabaseInitializer>();
+
+
+builder.Services.AddIdentity<User, Role>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+var secret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured");
+builder.Services.AddJwtAuthentication(secret);
+
 
 
 var app = builder.Build();
 // 全局异常处理放在最前面
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await DbSeeder.SeedMenuItemsAsync(dbContext);
-}
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var initializer = scope.ServiceProvider
+        .GetRequiredService<DatabaseInitializer>();
 
-    // 删除并重建数据库
-    //db.Database.EnsureDeleted();
-    db.Database.Migrate();  // 先应用迁移,创建表结构
-
-    // 然后才调用种子数据
-    await DbSeeder.SeedMenuItemsAsync(db);
+    await initializer.InitializeAsync();
 }
+
+
 
 // ✅ 添加 .ConfigureAwait(false)
 await app.ApplyMigrationsAsync().ConfigureAwait(false);
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

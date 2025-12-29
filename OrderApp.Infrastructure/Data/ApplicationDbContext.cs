@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OrderApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OrderApp.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<User, Role, Guid>
 {
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options
@@ -21,13 +22,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(modelBuilder);
-        base.OnModelCreating(modelBuilder);
+        ArgumentNullException.ThrowIfNull(builder);
+        base.OnModelCreating(builder);
 
         // EF Core 扩展方法，扫描所有 public IEntityTypeConfiguration<T>
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
 }

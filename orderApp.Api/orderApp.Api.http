@@ -57,7 +57,7 @@ GET {{orderApp.Api_HostAddress}}/api/orders
 Content-Type: application/json
 
 ### 获取单个订单
-GET {{orderApp.Api_HostAddress}}/api/orders/5163d010-7af1-498e-cd31-08de414937f9
+GET {{orderApp.Api_HostAddress}}/api/orders/970d3452-78f9-4033-6676-08de44d61e70
 Content-Type: application/json
 ### 创建订单
 POST {{orderApp.Api_HostAddress}}/api/orders
@@ -66,32 +66,33 @@ Content-Type: application/json
 {
   "items": [
     {
-      "menuItemId": "926fdf1c-c8c2-41e7-7ba6-08de439c86af",
+      "menuItemId": "91e9867d-0249-468c-5194-08de44d3bf2a",
       "quantity": 4
     },
     {
-      "menuItemId": "9266dfea-5743-446d-7ba7-08de439c86af",
+      "menuItemId": "e19d93f3-378b-4167-5195-08de44d3bf2a",
       "quantity": 2
     }
   ]
 }
 
 ### 更新订单
-PUT {{orderApp.Api_HostAddress}}/api/orders/65d1db43-c1a5-483d-cd30-08de414937f9
+PUT {{orderApp.Api_HostAddress}}/api/orders/970d3452-78f9-4033-6676-08de44d61e70
 Content-Type: application/json
 
 {
   "items": [
     {
-      "menuItemId": "bad5b8ee-57da-4fad-2fc5-08de41492604",
-      "quantity": 15
+      "menuItemId": "91e9867d-0249-468c-5194-08de44d3bf2a",
+      "quantity": 5
     },
     {
-      "menuItemId": "d59baacc-6ad9-4203-2fc6-08de41492604",
-      "quantity": 14
+      "menuItemId": "e19d93f3-378b-4167-5195-08de44d3bf2a",
+      "quantity": 5
     }
   ]
 }
 
+
 ###删除订单
-DELETE {{orderApp.Api_HostAddress}}/api/orders/5163d010-7af1-498e-cd31-08de414937f9
+DELETE {{orderApp.Api_HostAddress}}/api/orders/970d3452-78f9-4033-6676-08de44d61e70

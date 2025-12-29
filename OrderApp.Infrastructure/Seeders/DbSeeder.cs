@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderApp.Domain.Entities;
 using OrderApp.Domain.ValueObjects;
+using OrderApp.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderApp.Infrastructure.Data;
+namespace OrderApp.Infrastructure.Seeders;
 
 public static class DbSeeder
 {
